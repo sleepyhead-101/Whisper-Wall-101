@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whisper Wall</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+<link rel="shortcut icon" type="image/favicon.png" href="image/favicon.png" >
+  <style>
+    /* Add this to your existing CSS */
+    .header-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+    
+    .logo-icon {
+      font-size: 2.5rem;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-logo">
+        <div class="logo-icon">
+          <i class="fas fa-ghost"></i>
+        </div>
+        <div class="logo-text">
+          <h1>Whisper Wall</h1>
+          <p class="tagline">Share your anonymous confessions</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+  <main class="container">
+    <div class="editor-container">
+      <div id="editor"></div>
+      <div class="ai-enhance-container" id="ai-enhance-container">
+        <div class="ai-enhance-title">
+          <i class="fas fa-magic"></i> AI Enhancements
+        </div>
+        <div class="ai-suggestions">
+          <button class="ai-suggestion-btn" data-style="spicy">
+            <i class="fas fa-pepper-hot"></i> Make Spicy
+          </button>
+          <button class="ai-suggestion-btn" data-style="funny">
+            <i class="fas fa-laugh-squint"></i> Make Funny
+          </button>
+          <button class="ai-suggestion-btn" data-style="mysterious">
+            <i class="fas fa-mask"></i> Make Mysterious
+          </button>
+          <button class="ai-suggestion-btn" data-style="dramatic">
+            <i class="fas fa-theater-masks"></i> Make Dramatic
+          </button>
+        </div>
+      </div>
+      <div class="action-buttons">
+        <button id="submit-gossip">
+          <span class="button-icon">✍️</span> Post Anonymously
+        </button>
+        <button id="clear-editor" class="btn-secondary">
+          <span class="button-icon">🗑️</span> Clear
+        </button>
+      </div>
+    </div>
+
+    <div class="typing-indicator" id="typing-indicator"></div>
+    
+    <div id="gossip-list" class="gossip-list"></div>
+    
+    <div id="empty-state" class="empty-state" style="display: none;">
+      <div class="empty-state-icon">
+        <i class="fas fa-comment-slash"></i>
+      </div>
+      <h3>No whispers yet</h3>
+      <p>Be the first to share something anonymously!</p>
+    </div>
+  </main>
+
+  <div class="online-counter">
+    <span id="online-count">0</span> people online
+  </div>
+
+  <button id="scroll-to-top" class="floating-action-btn">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <button id="theme-toggle" class="theme-toggle">
+    <i class="fas fa-moon"></i>
+  </button>
+
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script type="module">
+    // Firebase imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      serverTimestamp, 
+      onSnapshot, 
+      query, 
+      orderBy, 
+      limit,
+      doc,
+      setDoc,
+      deleteDoc,
+      getDocs,
+      where,
+      increment
+    } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
+    import { 
+      getAuth, 
+      signInAnonymously,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js";
+    import { 
+      getDatabase,
+      ref,
+      onValue,
+      set,
+      serverTimestamp as rtdbServerTimestamp
+    } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-database.js";
+    import { 
+      getAnalytics 
+    } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-analytics.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBvi9YIXpSOTM8j0Kmxy6xSdu1JPbN6u4g",
+      authDomain: "whisper-wall-f795a.firebaseapp.com",
+      projectId: "whisper-wall-f795a",
+      storageBucket: "whisper-wall-f795a.appspot.com",
+      messagingSenderId: "984494856609",
+      appId: "1:984494856609:web:e5ab0cb6160ed6ca8dd3e0",
+      measurementId: "G-0EY84P6BCN",
+      databaseURL: "https://whisper-wall-f795a-default-rtdb.firebaseio.com/"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const realtimeDb = getDatabase(app);
+
+    // Initialize Quill editor
+    const quill = new Quill('#editor', {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline', 'strike'],
+          ['blockquote', 'code-block'],
+          [{ 'header': 1 }, { 'header': 2 }],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'script': 'sub'}, { 'script': 'super' }],
+          ['link'],
+          ['clean']
+        ]
+      },
+      placeholder: 'What\'s the whisper? Write anonymously...'
+    });
+
+    // Sign in anonymously
+    signInAnonymously(auth)
+      .then(() => {
+        console.log("Signed in anonymously");
+        setupOnlineCounter();
+        setupTypingIndicator();
+        deleteOldGossips();
+      })
+      .catch(error => {
+        console.error("Anonymous sign-in error:", error);
+      });
+
+    // Event Listeners
+    document.getElementById('submit-gossip').addEventListener('click', postGossip);
+    document.getElementById('clear-editor').addEventListener('click', clearEditor);
+    document.getElementById('scroll-to-top').addEventListener('click', scrollToTop);
+    document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+    // AI Enhancement buttons
+    document.querySelectorAll('.ai-suggestion-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const style = this.getAttribute('data-style');
+        enhanceWithAI(style);
+      });
+    });
+
+    // Theme management
+    function toggleTheme() {
+      const isDark = document.body.getAttribute('data-theme') === 'dark';
+      document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+      
+      const icon = document.querySelector('#theme-toggle i');
+      icon.className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+    }
+
+    // Initialize theme from localStorage
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    const themeIcon = document.querySelector('#theme-toggle i');
+    themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+
+    // Typing indicator
+    let typingTimeout;
+    function setupTypingIndicator() {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const typingRef = ref(realtimeDb, 'typingIndicator/' + user.uid);
+      
+      quill.on('text-change', () => {
+        const content = quill.getText().trim();
+        if (content.length > 0) {
+          set(typingRef, {
+            typing: true,
+            lastTyped: rtdbServerTimestamp()
+          });
+          
+          clearTimeout(typingTimeout);
+          typingTimeout = setTimeout(() => {
+            set(typingRef, {
+              typing: false,
+              lastTyped: rtdbServerTimestamp()
+            });
+          }, 3000);
+        }
+      });
+
+      // Listen for others typing
+      onValue(ref(realtimeDb, 'typingIndicator'), (snapshot) => {
+        const typers = [];
+        const currentUserUid = auth.currentUser?.uid;
+        
+        snapshot.forEach((userSnapshot) => {
+          const userData = userSnapshot.val();
+          if (userSnapshot.key !== currentUserUid && 
+              userData.typing && 
+              Date.now() - userData.lastTyped < 5000) {
+            typers.push('Anonymous');
+          }
+        });
+        
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typers.length > 0) {
+          typingIndicator.textContent = `${typers.join(', ')} ${typers.length > 1 ? 'are' : 'is'} typing...`;
+          typingIndicator.style.display = 'block';
+        } else {
+          typingIndicator.style.display = 'none';
+        }
+      });
+    }
+
+    // Reaction system
+    const REACTIONS = ['❤️', '😂', '😮', '😢', '👍', '👎'];
+
+    function addReactionButtons(gossipItem, docId) {
+      const reactionContainer = document.createElement('div');
+      reactionContainer.className = 'reaction-container';
+      
+      REACTIONS.forEach(reaction => {
+        const button = document.createElement('button');
+        button.className = 'reaction-btn';
+        button.textContent = reaction;
+        button.addEventListener('click', () => addReaction(docId, reaction));
+        reactionContainer.appendChild(button);
+      });
+      
+      gossipItem.appendChild(reactionContainer);
+    }
+
+    async function addReaction(docId, reaction) {
+      try {
+        const reactionRef = doc(db, "gossips", docId, "reactions", reaction);
+        await setDoc(reactionRef, {
+          count: increment(1)
+        }, { merge: true });
+        
+        // Visual feedback
+        const button = document.querySelector(`.gossip-item[data-id="${docId}"] .reaction-btn`);
+        if (button) {
+          button.style.transform = 'scale(1.5)';
+          setTimeout(() => {
+            button.style.transform = 'scale(1)';
+          }, 300);
+        }
+      } catch (error) {
+        console.error("Error adding reaction:", error);
+      }
+    }
+
+    function displayReactions(gossipItem, docId) {
+      const reactionsRef = collection(db, "gossips", docId, "reactions");
+      onSnapshot(reactionsRef, (snapshot) => {
+        const reactionsDisplay = gossipItem.querySelector('.reactions-display') || 
+                               document.createElement('div');
+        reactionsDisplay.className = 'reactions-display';
+        reactionsDisplay.innerHTML = '';
+        
+        snapshot.forEach(doc => {
+          const reaction = doc.id;
+          const count = doc.data().count;
+          if (count > 0) {
+            const reactionSpan = document.createElement('span');
+            reactionSpan.className = 'reaction';
+            reactionSpan.innerHTML = `${reaction} ${count}`;
+            reactionsDisplay.appendChild(reactionSpan);
+          }
+        });
+        
+        if (!gossipItem.querySelector('.reactions-display') && reactionsDisplay.innerHTML !== '') {
+          gossipItem.appendChild(reactionsDisplay);
+        }
+      });
+    }
+
+    // Post Gossip Function
+    async function postGossip() {
+      const content = quill.root.innerHTML;
+      if (!content || content === '<p><br></p>') {
+        alert("Please write something before posting!");
+        return;
+      }
+
+      const button = document.getElementById('submit-gossip');
+      button.innerHTML = '<span class="button-icon">⏳</span> Posting...';
+      button.disabled = true;
+
+      try {
+        await addDoc(collection(db, "gossips"), {
+          content: content,
+          timestamp: serverTimestamp(),
+          likes: 0,
+          isAIEnhanced: document.getElementById('ai-enhance-container').getAttribute('data-enhanced') === 'true'
+        });
+        
+        quill.setContents([]);
+        document.getElementById('ai-enhance-container').removeAttribute('data-enhanced');
+        button.innerHTML = '<span class="button-icon">✍️</span> Post Anonymously';
+        button.disabled = false;
+        
+        // Show success effect
+        button.style.backgroundColor = 'var(--success)';
+        setTimeout(() => {
+          button.style.backgroundColor = '';
+        }, 1000);
+      } catch (error) {
+        console.error("Error posting gossip:", error);
+        alert("Failed to post. Please try again.");
+        button.innerHTML = '<span class="button-icon">✍️</span> Post Anonymously';
+        button.disabled = false;
+      }
+    }
+
+    // Helper Functions
+    function clearEditor() {
+      quill.setContents([]);
+      document.getElementById('ai-enhance-container').removeAttribute('data-enhanced');
+    }
+
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    // Format date
+    function formatDate(date) {
+      if (!date) return 'Just now';
+      const now = new Date();
+      const diff = now - date;
+
+      if (diff < 60 * 1000) return 'Just now';
+      if (diff < 60 * 60 * 1000) return `${Math.floor(diff / (60 * 1000))}m ago`;
+      if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / (60 * 60 * 1000))}h ago`;
+      if (now.getFullYear() === date.getFullYear()) {
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    // Online user counter
+    async function setupOnlineCounter() {
+      const userId = auth.currentUser?.uid;
+      if (!userId) return;
+      
+      const userStatusRef = ref(realtimeDb, 'status/' + userId);
+      
+      // Set user status to online
+      await set(userStatusRef, {
+        lastActive: rtdbServerTimestamp(),
+        online: true
+      });
+      
+      // Setup onDisconnect
+      onDisconnect(userStatusRef).set({
+        lastActive: rtdbServerTimestamp(),
+        online: false
+      });
+      
+      // Count online users
+      const statusRef = ref(realtimeDb, 'status');
+      onValue(statusRef, (snapshot) => {
+        const statuses = snapshot.val() || {};
+        let onlineCount = 0;
+        
+        for (const key in statuses) {
+          const status = statuses[key];
+          if (status.online) {
+            onlineCount++;
+          }
+        }
+        
+        document.getElementById('online-count').textContent = onlineCount;
+      });
+    }
+
+    // Show/hide scroll to top button
+    window.addEventListener('scroll', function() {
+      const scrollBtn = document.getElementById('scroll-to-top');
+      if (window.pageYOffset > 300) {
+        scrollBtn.style.display = 'flex';
+      } else {
+        scrollBtn.style.display = 'none';
+      }
+    });
+
+    // Delete old gossips (older than 2 days)
+    async function deleteOldGossips() {
+      try {
+        const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+        const gossipsRef = collection(db, "gossips");
+        const oldGossipsQuery = query(gossipsRef, where("timestamp", "<", twoDaysAgo));
+        const snapshot = await getDocs(oldGossipsQuery);
+        
+        const deletePromises = [];
+        snapshot.forEach(docSnap => {
+          deletePromises.push(deleteDoc(doc(db, "gossips", docSnap.id)));
+        });
+        
+        await Promise.all(deletePromises);
+        if (deletePromises.length > 0) {
+          console.log(`Deleted ${deletePromises.length} old gossips.`);
+        }
+      } catch (err) {
+        console.error("Error deleting old gossips:", err);
+      }
+    }
+
+    // Real-time gossip listener
+    const q = query(collection(db, "gossips"), orderBy("timestamp", "desc"), limit(50));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const gossipList = document.getElementById('gossip-list');
+      const emptyState = document.getElementById('empty-state');
+      
+      if (snapshot.empty) {
+        emptyState.style.display = 'block';
+        gossipList.innerHTML = '';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      gossipList.innerHTML = '';
+      
+      snapshot.forEach((doc, index) => {
+        const gossip = doc.data();
+        const gossipItem = document.createElement('div');
+        gossipItem.className = 'gossip-item';
+        gossipItem.dataset.id = doc.id;
+        
+        const aiBadge = gossip.isAIEnhanced ? '<span class="ai-enhanced-badge">✨ AI Enhanced</span>' : '';
+        
+        gossipItem.innerHTML = `
+          <div class="gossip-content">${gossip.content}</div>
+          <div class="gossip-meta">
+            ${aiBadge}
+            <span class="anonymous-badge">Anonymous</span>
+            <span class="timestamp">${formatDate(gossip.timestamp?.toDate())}</span>
+          </div>
+        `;
+        
+        // Add reaction system
+        addReactionButtons(gossipItem, doc.id);
+        displayReactions(gossipItem, doc.id);
+        
+        gossipItem.style.animationDelay = `${index * 0.1}s`;
+        gossipList.appendChild(gossipItem);
+      });
+    });
+
+    // AI Enhancement Functions
+    async function enhanceWithAI(style) {
+      const content = quill.getText().trim();
+      if (!content || content.length < 10) {
+        alert("Please write at least 10 characters before enhancing!");
+        return;
+      }
+
+      const button = document.querySelector(`.ai-suggestion-btn[data-style="${style}"]`);
+      const originalText = button.textContent;
+      
+      // Show loading state
+      button.innerHTML = '<span class="ai-loading"></span> Enhancing...';
+      button.disabled = true;
+
+      try {
+        const prompt = getAIPromptForStyle(content, style);
+        const enhancedContent = await callVertexAI(prompt);
+        
+        // Mark as AI enhanced
+        document.getElementById('ai-enhance-container').setAttribute('data-enhanced', 'true');
+        
+        // Replace the editor content with the enhanced version
+        quill.setContents([]);
+        quill.clipboard.dangerouslyPasteHTML(0, enhancedContent);
+        
+        // Restore button
+        button.textContent = originalText;
+        button.disabled = false;
+        
+        // Show success effect
+        button.style.borderColor = 'var(--success)';
+        setTimeout(() => {
+          button.style.borderColor = 'var(--accent)';
+        }, 1000);
+      } catch (error) {
+        console.error("AI enhancement error:", error);
+        alert(`Failed to enhance: ${error.message}`);
+        button.textContent = originalText;
+        button.disabled = false;
+      }
+    }
+
+    function getAIPromptForStyle(content, style) {
+      const basePrompt = "Rewrite this anonymous gossip message to make it more ";
+      const styleInstructions = {
+        'spicy': "spicy and scandalous. Add juicy details and make it more exciting while keeping it believable.",
+        'funny': "humorous and entertaining. Add funny exaggerations or witty remarks while keeping it anonymous.",
+        'mysterious': "mysterious and intriguing. Add an air of secrecy and suspense.",
+        'dramatic': "dramatic like a soap opera plot. Use dramatic language and exaggerate the stakes."
+      };
+      
+      return `${basePrompt}${styleInstructions[style]}. Keep it anonymous and don't reveal any personal details. Here's the original: "${content}"`;
+    }
+
+    async function callVertexAI(prompt) {
+      try {
+        const user = auth.currentUser;
+        if (!user) throw new Error("User not authenticated");
+        
+        const token = await user.getIdToken();
+        const VERTEX_AI_URL = "https://us-central1-aiplatform.googleapis.com/v1/projects/whisper-wall-f795a/locations/us-central1/publishers/google/models/text-bison:predict";
+        
+        const response = await fetch(VERTEX_AI_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            instances: [{
+              prompt: prompt
+            }],
+            parameters: {
+              temperature: 0.7,
+              maxOutputTokens: 1024,
+              topP: 0.8,
+              topK: 40
+            }
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error?.message || "Vertex AI request failed");
+        }
+
+        const data = await response.json();
+        
+        if (!data.predictions || !data.predictions[0].content) {
+          throw new Error("No content was generated");
+        }
+
+        return data.predictions[0].content;
+      } catch (error) {
+        console.error("Vertex AI call failed:", error);
+        throw new Error(`AI service unavailable. Please try again later. (${error.message})`);
+      }
+    }
+  </script>
+<footer style="
+  background: linear-gradient(135deg, #1a0033, #2a0435);
+  padding: 3rem 1rem;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  color: #eee;
+  position: relative;
+  overflow: hidden;
+">
+  <!-- Animated background elements -->
+  <div style="
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(255, 75, 200, 0.15) 0%, transparent 25%),
+      radial-gradient(circle at 80% 70%, rgba(107, 200, 255, 0.1) 0%, transparent 25%);
+    animation: pulse 12s infinite alternate;
+  "></div>
+
+  <div class="container" style="position: relative; z-index: 2;">
+    <!-- Main copyright text with glow effect -->
+    <p style="
+      margin: 0;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(255, 78, 203, 0.3);
+      position: relative;
+      display: inline-block;
+    ">
+      &copy; 2025 
+      <strong style="
+        color: #ff4ecb;
+        font-weight: 600;
+        text-shadow: 0 0 15px rgba(255, 78, 203, 0.5);
+      ">Whisper Wall</strong> 
+      <span style="
+        display: inline-block;
+        margin: 0 0.5rem;
+        transform: translateY(2px);
+      ">—</span>
+      made with 
+      <span style="
+        color: #ff6b6b;
+        font-size: 1.4em;
+        display: inline-block;
+        animation: heartbeat 1.5s infinite;
+        text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+      " aria-label="love">&#10084;</span> 
+      for those who speak in silence.
+    </p>
+
+    <!-- Signature with fancy hover effect -->
+    <div style="
+      margin-top: 1.2rem;
+      font-size: 1rem;
+      letter-spacing: 3px;
+      transition: all 0.3s ease;
+    " class="signature">
+      <i class="fas fa-crown" style="
+        margin-right: 8px;
+        color: #ffd700;
+        text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+      "></i>
+      <span style="
+        color: #f0aaff;
+        font-weight: 500;
+        position: relative;
+        padding-bottom: 2px;
+      ">
+        BY THE WHISPER KING
+        <span style="
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 0;
+          height: 2px;
+          background: linear-gradient(90deg, #ff4ecb, #f0aaff);
+          transition: width 0.3s ease;
+        "></span>
+      </span>
+    </div>
+
+    <!-- Social links (optional) -->
+    <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1.5rem;">
+      <a href="#" style="
+        color: #ccc;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+      " aria-label="Twitter">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a href="#" style="
+        color: #ccc;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+      " aria-label="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="#" style="
+        color: #ccc;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+      " aria-label="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+  </div>
+
+  <style>
+    @keyframes pulse {
+      0% { opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { opacity: 0.8; }
+    }
+    
+    @keyframes heartbeat {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.1); }
+      50% { transform: scale(1); }
+      75% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    .signature:hover {
+      transform: translateY(-2px);
+      text-shadow: 0 0 10px rgba(240, 170, 255, 0.5);
+    }
+    
+    .signature:hover span span {
+      width: 100%;
+    }
+    
+    .fab:hover {
+      color: #ff4ecb !important;
+      transform: translateY(-3px) scale(1.2);
+      text-shadow: 0 0 10px rgba(255, 78, 203, 0.5);
+    }
+  </style>
+</footer>
+
+
+            </a>
+        </p>
+    </div>
+</footer>
+</body>
+</html>

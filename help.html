@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Learn how to use Whisper Wall and understand our community guidelines for anonymous confessions." />
+  <title>Help & Rules – Whisper Wall</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="shortcut icon" type="image/helpimage.png" href="image/helpimage.png" >
+
+  <style>
+    :root {
+      --dark: #2a0435;
+      --secondary: #43135a;
+      --primary: #b5179e;
+      --accent: #f72585;
+      --text-light: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.7);
+      --bg-gradient: linear-gradient(135deg, var(--dark), var(--secondary));
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-light);
+      padding: 2rem;
+      line-height: 1.7;
+      min-height: 100vh;
+      transition: all 0.4s ease;
+    }
+
+    .help-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--primary));
+      border-radius: 2px;
+    }
+
+    h2 {
+      color: var(--accent);
+      font-size: 1.5rem;
+      margin: 2.5rem 0 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h2 i {
+      font-size: 1.2rem;
+      color: var(--primary);
+      width: 28px;
+      text-align: center;
+    }
+
+    ul {
+      padding-left: 1.5rem;
+      list-style-type: none;
+    }
+
+    li {
+      margin-bottom: 1rem;
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    li::before {
+      content: '\2022';
+      color: var(--primary);
+      font-size: 1.8rem;
+      position: absolute;
+      left: 0;
+      top: -5px;
+    }
+
+    .note {
+      background: rgba(247, 37, 133, 0.15);
+      border-left: 4px solid var(--accent);
+      padding: 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 2rem 0;
+      font-size: 0.95rem;
+      position: relative;
+      animation: pulseBorder 3s infinite;
+    }
+
+    @keyframes pulseBorder {
+      0% { border-left-color: var(--accent); }
+      50% { border-left-color: var(--primary); }
+      100% { border-left-color: var(--accent); }
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(121, 34, 198, 0.3);
+      font-size: 1rem;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(121, 34, 198, 0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--text-light);
+    }
+
+    .btn-outline:hover {
+      background: rgba(181, 23, 158, 0.2);
+    }
+
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      margin: 2.5rem 0;
+    }
+
+    .toggle-container {
+      margin-top: 3rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--secondary);
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 4px;
+      bottom: 4px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(30px);
+    }
+
+    .toggle-label {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .help-container { 
+        padding: 1.5rem;
+        margin: 1rem auto;
+      }
+      h1 { 
+        font-size: 2rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      .btn-group {
+        flex-direction: column;
+      }
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Dark mode styles */
+    body.dark-mode {
+      --dark: #120218;
+      --secondary: #2a0a3a;
+      --primary: #9c12a0;
+      --accent: #e5177e;
+      --text-light: #f0e6ff;
+      --bg-gradient: linear-gradient(135deg, var(--dark), var(--secondary));
+    }
+
+    /* Accessibility focus styles */
+    a:focus, button:focus, input:focus {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="help-container">
+    <h1><i class="fas fa-question-circle"></i> Enter the Whisper Realm</h1>
+
+    <h2><i class="fas fa-lightbulb"></i> What This Is & How to Use It</h2>
+    <ul>
+      <li><strong>Type it. Drop it. Vanish:</strong> Say anything—no trace, no shame. Your words disappear into the void.</li>
+      <li><strong>Turn up the heat:</strong> This is your purge portal. Unleash what you can't say elsewhere. No judgment zone.</li>
+      <li><strong>Click "Post Anonymously":</strong> Watch your words echo through the void. One click and it's out there forever.</li>
+      <li><strong>Control the flow:</strong> Tap the arrow to bounce around. Quick exits, quicker entries. Stay ghostly.</li>
+      <li><strong>Feel the surge:</strong> Real-time user count—you're never whispering alone. See who's lurking in the shadows.</li>
+    </ul>
+
+    <div class="note" id="promptBox" role="alert" aria-live="polite"></div>
+
+    <div class="section-divider"></div>
+
+    <h2><i class="fas fa-gavel"></i> Rules? Just Don't Be Boring</h2>
+    <ul>
+      <li><strong>No fake drama:</strong> If you're gonna lie, make it legendary. We want entertainment, not cringe.</li>
+      <li><strong>No doxxing:</strong> No names. No faces. Just chaos. Keep it anonymous or keep it to yourself.</li>
+      <li><strong>Flooding is lame:</strong> Keep it spicy, not spammy. Quality over quantity always.</li>
+      <li><strong>Speak flames:</strong> Raw, real, twisted—whatever. But make it hit. We're here for the heat.</li>
+      <li><strong>No illegal content:</strong> Keep it legal. We're not your alibi.</li>
+      <li><strong>Why is everything so pink?</strong> The bold colors set the mood—gossip is meant to stand out. But everyone’s welcome to spill their secrets here, no matter your vibe just kidding it's case I no it will be used more by the girls.</li>
+
+    </ul>
+
+    <div class="section-divider"></div>
+
+    <h2><i class="fas fa-shield-alt"></i> Your Secrets Are Sealed</h2>
+    <ul>
+      <li><strong>Zero trace:</strong> Nothing connects you to what you confess. Not even we know who you are.</li>
+      <li><strong>Secure layer:</strong> Firebase keeps the gates locked tight. Enterprise-grade security for your thoughts.</li>
+      <li><strong>No memory AI:</strong> We enhance, not store. You're a ghost in the code.</li>
+      <li><strong>No data greed:</strong> We don't sell your soul—or your info. This isn't Facebook.</li>
+      <li><strong>Auto-purge:</strong> Old whispers fade into the void after 30 days. Nothing lasts forever.</li>
+    </ul>
+
+    <div class="btn-group">
+      <a href="index.html" class="btn" aria-label="Return to Whisper Wall">
+        <i class="fas fa-arrow-left"></i> Back to the Wall
+      </a>
+      <button class="btn btn-outline" onclick="confirmConfession()" aria-label="Post a new confession">
+        <i class="fas fa-fire"></i> Confess or Chicken Out
+      </button>
+    </div>
+
+    <div class="toggle-container">
+      <label class="toggle-switch">
+        <input type="checkbox" onchange="toggleDarkMode()" aria-label="Toggle dark mode" />
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-label">Dark Whisper Mode</span>
+    </div>
+  </div>
+
+  <script>
+    const prompts = [
+      "What's your darkest craving? The one that would shock even you.",
+      "Which secret would end your most important relationship if it came out?",
+      "Who do you want to expose, and why haven't you done it yet?",
+      "What's something you'd never say out loud... until now?",
+      "Who do you envy the most, but pretend not to? What do they have that you want?",
+      "What lie do you live with every day? How does it shape you?",
+      "What's the most forbidden thought you've ever had?",
+      "If you could anonymously ruin one person's life, who would it be and why?",
+      "What's the worst thing you've done that no one knows about?",
+      "What societal norm do you secretly despise following?"
+    ];
+
+    window.onload = () => {
+      const promptBox = document.getElementById('promptBox');
+      const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+      promptBox.innerHTML = `<i class="fas fa-ghost"></i> <strong>Whisper Prompt:</strong> ${randomPrompt}`;
+      
+      // Check for saved dark mode preference
+      if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+        document.querySelector('.toggle-switch input').checked = true;
+      }
+    };
+
+    function confirmConfession() {
+      const confirmation = confirm("This can't be undone. Are you absolutely sure you want to unleash this into the void?");
+      if (confirmation) {
+        window.location.href = 'post.html';
+      } else {
+        alert("Your secret remains safe... for now. Return when you're ready to let it go.");
+      }
+    }
+
+    function toggleDarkMode() {
+      const body = document.body;
+      body.classList.toggle('dark-mode');
+      
+      // Save preference to localStorage
+      if (body.classList.contains('dark-mode')) {
+        localStorage.setItem('darkMode', 'enabled');
+      } else {
+        localStorage.setItem('darkMode', 'disabled');
+      }
+    }
+  </script>
+</body>
+</html>
