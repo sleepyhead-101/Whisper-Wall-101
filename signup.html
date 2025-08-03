@@ -8,7 +8,7 @@
    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link rel="stylesheet" href="styles/signup.css">
+    <link rel="stylesheet" href="styles/signup.css">
 </head>
 <body>
     <!-- Enhanced Floating Ghosts -->
@@ -27,7 +27,6 @@
             <input type="hidden" name="_subject" value="New Whisper Wall Signup">
             <input type="hidden" name="_autoresponse" value="Thank you for signing up to Whisper Wall! Your account is being prepared and you'll receive access soon.">
             <input type="hidden" name="_template" value="table">
-            <input type="hidden" name="_next" value=" https://sleepyhead-101.github.io/Whisper-Wall-101/singup.html">
             <input type="text" name="_honey" style="display:none">
             
             <div class="form-group">
@@ -102,21 +101,54 @@
             </button>
         </form>
         
-      
-        
-        <div class="loading" id="loading">
+        <div class="loading" id="loading" style="display: none;">
             <div class="spinner" aria-hidden="true"></div>
             <p>Summoning your spectral account...</p>
         </div>
         
-        <div class="success-message" id="successMessage">
+        <div class="success-message" id="successMessage" style="display: none;">
             <i class="fas fa-check-circle" aria-hidden="true"></i>
             <p>Account created successfully! Transporting you to the Whisper Wall...</p>
         </div>
     </div>
 
-    <script src="script/gghhgghh.js"></script>
-</body>
+    <script>
+        const form = document.getElementById("whisperForm");
+        const loading = document.getElementById("loading");
+        const successMessage = document.getElementById("successMessage");
 
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            // Show loading
+            loading.style.display = "block";
+
+            // Send form data to FormSubmit
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: form.method,
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                loading.style.display = "none";
+                successMessage.style.display = "block";
+
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = "load.html";
+                }, 2500);
+            })
+            .catch(error => {
+                loading.style.display = "none";
+                alert("There was a problem submitting the form. Please try again.");
+                console.error("Form submission error:", error);
+            });
+        });
+    </script>
+
+<script src="script/gghhgghh.js"></script>
 </html>
-
