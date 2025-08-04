@@ -2,85 +2,91 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">                      
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sign up for Whisper Wall to share anonymous messages">
     <title>Whisper Wall - Spectral Sign Up</title>
-   
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles/signup.css">
-</head>
+
+    </head>
 <body>
-    <!-- Enhanced Floating Ghosts -->
-    <div class="ghost" style="top: 10%; left: 5%; animation-delay: 0s;"></div>
-    <div class="ghost" style="top: 70%; left: 80%; animation-delay: 2s; width: 50px; height: 65px;"></div>
-    <div class="ghost" style="top: 30%; left: 60%; animation-delay: 4s; width: 70px; height: 90px;"></div>
-    <div class="ghost" style="top: 80%; left: 20%; animation-delay: 6s;"></div>
-    <div class="ghost" style="top: 20%; left: 40%; animation-delay: 8s; width: 55px; height: 70px;"></div>
+    <!-- Ghost elements -->
+    <div class="ghost" aria-hidden="true" style="top: 10%; left: 5%; animation-delay: 0s;"></div>
+    <div class="ghost" aria-hidden="true" style="top: 70%; left: 80%; animation-delay: 2s; width: 50px; height: 65px;"></div>
+    <div class="ghost" aria-hidden="true" style="top: 30%; left: 60%; animation-delay: 4s; width: 70px; height: 90px;"></div>
+    <div class="ghost" aria-hidden="true" style="top: 80%; left: 20%; animation-delay: 6s;"></div>
+    <div class="ghost" aria-hidden="true" style="top: 20%; left: 40%; animation-delay: 8s; width: 55px; height: 70px;"></div>
     
-    <div class="container">
-        <h1>Whisper Wall</h1>
-        <p class="subtitle">Join our spectral community of anonymous whispers</p>
+    <main class="container">
+        <div class="header-container">
+            <h1>Whisper Wall</h1>
+            <p class="subtitle">Join our spectral community of anonymous whispers</p>
+        </div>
         
-        <form id="whisperForm" action="https://formsubmit.co/howb6223@gmail.com" method="POST">
-            <!-- Add hidden FormSubmit fields -->
+        <form id="whisperForm" action="https://formsubmit.co/howb6223@gmail.com" method="POST" novalidate>
+            <!-- FormSubmit configuration -->
             <input type="hidden" name="_subject" value="New Whisper Wall Signup">
             <input type="hidden" name="_autoresponse" value="Thank you for signing up to Whisper Wall! Your account is being prepared and you'll receive access soon.">
             <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_next" value="https://yourdomain.com/success.html">
+            <input type="hidden" name="_captcha" value="false">
             <input type="text" name="_honey" style="display:none">
             
+            <!-- Name Field -->
             <div class="form-group">
-                <label for="name">Name <span class="required-indicator">*</span></label>
-                <input type="text" id="name" name="name" required placeholder="Your name" aria-describedby="name-error">
-                <div class="error-message" id="name-error">Please enter your name</div>
+                <label for="name">Name <span class="required-indicator" aria-hidden="true">*</span></label>
+                <input type="text" id="name" name="name" required placeholder="Your name" 
+                       aria-required="true" aria-describedby="name-error">
+                <div class="error-message" id="name-error" role="alert" aria-live="polite">Please enter your name</div>
             </div>
             
+            <!-- Email Field -->
             <div class="form-group">
-                <label for="email">Email Address <span class="required-indicator">*</span></label>
-                <input type="email" id="email" name="email" required placeholder="your@email.com" autocomplete="email" aria-describedby="email-error email-requirements">
-                <div class="error-message" id="email-error">Please enter a valid email address</div>
+                <label for="email">Email Address <span class="required-indicator" aria-hidden="true">*</span></label>
+                <input type="email" id="email" name="email" required placeholder="your@email.com" 
+                       autocomplete="email" aria-required="true" 
+                       aria-describedby="email-error email-requirements">
+                <div class="error-message" id="email-error" role="alert" aria-live="polite">Please enter a valid email address</div>
                 <div class="requirements" id="email-requirements">
-                    <div class="requirement"><i class="fas fa-circle invalid" id="email-at"></i> Must contain @ symbol</div>
-                    <div class="requirement"><i class="fas fa-circle invalid" id="email-dot"></i> Must contain a dot (.)</div>
-                    <div class="requirement"><i class="fas fa-circle invalid" id="email-domain"></i> Must have valid domain (like .com)</div>
+                    <div class="requirement"><i class="fas fa-circle invalid" id="email-at" aria-hidden="true"></i> Must contain @ symbol</div>
+                    <div class="requirement"><i class="fas fa-circle invalid" id="email-dot" aria-hidden="true"></i> Must contain a dot (.)</div>
+                    <div class="requirement"><i class="fas fa-circle invalid" id="email-domain" aria-hidden="true"></i> Must have valid domain (like .com)</div>
                 </div>
             </div>
             
+            <!-- Password Field -->
             <div class="form-group">
-                <label for="password">Password <span class="required-indicator">*</span></label>
+                <label for="password">Password <span class="required-indicator" aria-hidden="true">*</span></label>
                 <div class="password-container">
                     <input type="password" id="password" name="password" required minlength="8" 
                            placeholder="At least 8 characters" autocomplete="new-password"
-                           aria-describedby="password-error password-requirements">
-                    <button type="button" class="toggle-password" aria-label="Show password">
-                        <i class="fas fa-eye"></i>
+                           aria-required="true" aria-describedby="password-error password-requirements password-strength-text">
+                    <button type="button" class="toggle-password" aria-label="Show password" aria-pressed="false">
+                        <i class="fas fa-eye" aria-hidden="true"></i>
                     </button>
                 </div>
                 <div class="password-strength">
                     <div class="strength-meter" id="strength-meter" aria-hidden="true"></div>
+                    <span id="password-strength-text" class="sr-only">Password strength: weak</span>
                 </div>
-                <div class="error-message" id="password-error">Password must meet all requirements below</div>
+                <div class="error-message" id="password-error" role="alert" aria-live="polite">Password must meet all requirements below</div>
                 <div class="requirements" id="password-requirements">
-                    <div class="requirement"><i class="fas fa-circle invalid" id="length-req"></i> At least 8 characters</div>
-                    <div class="requirement"><i class="fas fa-circle invalid" id="number-req"></i> Contains at least one number</div>
-                    <div class="requirement"><i class="fas fa-circle invalid" id="letter-req"></i> Contains at least one letter</div>
+                    <div class="requirement"><i class="fas fa-circle invalid" id="length-req" aria-hidden="true"></i> At least 8 characters</div>
+                    <div class="requirement"><i class="fas fa-circle invalid" id="number-req" aria-hidden="true"></i> Contains at least one number</div>
+                    <div class="requirement"><i class="fas fa-circle invalid" id="letter-req" aria-hidden="true"></i> Contains at least one letter</div>
+                    <div class="requirement"><i class="fas fa-circle invalid" id="special-req" aria-hidden="true"></i> Contains at least one special character (!@#$%)</div>
                 </div>
             </div>
             
-            <!-- Terms Agreement Checkbox -->
+            <!-- Terms Checkbox -->
             <div class="checkbox-container">
-                <input 
-                    type="checkbox" 
-                    id="agree-checkbox" 
-                    name="agree" 
-                    required
-                    aria-required="true"
-                    class="visually-hidden"
-                    aria-describedby="terms-error"
-                >
+                <input type="checkbox" id="agree-checkbox" name="agree" required
+                       aria-required="true" class="visually-hidden"
+                       aria-describedby="terms-error">
                 <label for="agree-checkbox" class="checkbox-label">
                     <span class="custom-checkbox" aria-hidden="true">
-                        <svg class="check-icon" viewBox="0 0 24 24" focusable="false">
+                        <svg class="check-icon" viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                             <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path>
                         </svg>
                     </span>
@@ -91,64 +97,36 @@
                         <span class="required-indicator" aria-hidden="true">*</span>
                     </span>
                 </label>
-                <div class="terms-error" id="terms-error">
+                <div class="terms-error" id="terms-error" role="alert" aria-live="polite">
                     You must agree to the terms to continue
                 </div>
             </div>
             
-            <button type="submit" id="submitBtn" aria-live="polite">
+            <!-- Submit Button -->
+            <button type="submit" id="submitBtn" class="cta-button" aria-live="polite" disabled>
                 <span class="button-text">Continue to Whisper Wall</span>
+                <span class="button-icon" aria-hidden="true">→</span>
             </button>
         </form>
         
-        <div class="loading" id="loading" style="display: none;">
+        <!-- Loading State -->
+        <div class="loading" id="loading" aria-live="polite" aria-busy="true" hidden>
             <div class="spinner" aria-hidden="true"></div>
             <p>Summoning your spectral account...</p>
         </div>
         
-        <div class="success-message" id="successMessage" style="display: none;">
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage" aria-live="polite" hidden>
             <i class="fas fa-check-circle" aria-hidden="true"></i>
             <p>Account created successfully! Transporting you to the Whisper Wall...</p>
         </div>
-    </div>
+        
+        <!-- Login Link -->
+        <div class="login-link">
+            <p>Already have an account? <a href="login.html" aria-label="Log in to your Whisper Wall account">Log in</a></p>
+        </div>
+    </main>
+        <script src="script/gghhgghh.js"script>
 
-    <script>
-        const form = document.getElementById("whisperForm");
-        const loading = document.getElementById("loading");
-        const successMessage = document.getElementById("successMessage");
-
-        form.addEventListener("submit", function (e) {
-            e.preventDefault();
-
-            // Show loading
-            loading.style.display = "block";
-
-            // Send form data to FormSubmit
-            const formData = new FormData(form);
-
-            fetch(form.action, {
-                method: form.method,
-                body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                loading.style.display = "none";
-                successMessage.style.display = "block";
-
-                // Redirect after short delay
-                setTimeout(() => {
-                    window.location.href = "load.html";
-                }, 2500);
-            })
-            .catch(error => {
-                loading.style.display = "none";
-                alert("There was a problem submitting the form. Please try again.");
-                console.error("Form submission error:", error);
-            });
-        });
-    </script>
-
-<script src="script/gghhgghh.js"></script>
+</body>
 </html>
