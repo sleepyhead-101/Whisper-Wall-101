@@ -1,4 +1,3 @@
-/* Load CSS for Dark Theme with Ghost Animation */
         /* Dark Theme Load CSS */
         /* Dark Theme Base Styles */
         :root {
@@ -581,4 +580,3 @@
             outline: 2px solid var(--accent);
             outline-offset: 2px;
         }
-    
