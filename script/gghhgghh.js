@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Redirect after another delay (3 seconds)
                 setTimeout(function() {
-                    window.location.href = "loading.html"; // Change to your loading page URL
+                    window.location.href = "load.html"; // Change to your loading page URL
                 }, 3000);
             }, 2000);
             
